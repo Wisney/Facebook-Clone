@@ -3,3 +3,4 @@
 Using:
 - Laravel, Passport
 - Vue 
+- Tailwind Css
