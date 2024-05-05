@@ -2,3 +2,4 @@
 
 Using:
 - Laravel, Passport
+- Vue 
