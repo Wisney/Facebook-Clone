@@ -12,7 +12,7 @@
                         </svg>
                     </div>
                     <input type="text" name="search"
-                    class="rounded-full w-56 pl-8 bg-gray-200 h-8 focus:outline-none text-sm"
+                    class="rounded-full w-56 pl-8 bg-gray-200 h-8 outline-blue-300 text-sm"
                     placeholder="Search Facebook">
                 </div>
             </div>
