@@ -14,7 +14,8 @@ class PostFactory extends Factory {
     public function definition() {
         return [
             'user_id' => User::factory(),
-            'body' => $this->faker->sentence()
+            'body' => $this->faker->sentence(),
+            'image' => 'image.jpg'
         ];
     }
 }
