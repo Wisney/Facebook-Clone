@@ -29,11 +29,11 @@ export default {
     mounted() {
         axios.get('/api/posts').then(res => {
             this.posts = res.data;
-            this.loading = false;
         }).catch(err => {
             console.log('Unable to fetch posts');
+        }).finally(() => {
             this.loading = false;
-        })
+        });
     }
 }
 </script>
