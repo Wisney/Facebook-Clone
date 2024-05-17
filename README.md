@@ -2,7 +2,7 @@
 
 Using:
 - PHP
-- Laravel, Passport
-- Vue 
-- Tailwind Css
 - PHPUnit
+- Laravel, Passport
+- Vue, Vuex
+- Tailwind Css

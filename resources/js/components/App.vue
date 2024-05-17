@@ -23,7 +23,21 @@ export default {
     components: {
         Nav,
         Sidebar
-    }
+    },
+
+    watch: {
+        $route(to, from) {
+            this.$store.dispatch('setPageTitle', to.meta.title);
+        }
+    },
+
+    created() {
+        this.$store.dispatch('setPageTitle', this.$route.meta.title);
+    },
+
+    mounted() {
+        this.$store.dispatch('fetchAuthUser');
+    },
 }
 </script>
 
