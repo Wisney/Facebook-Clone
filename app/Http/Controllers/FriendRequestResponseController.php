@@ -11,8 +11,8 @@ use Illuminate\Http\Request;
 class FriendRequestResponseController extends Controller {
     public function store(Request $request) {
         $data = $request->validate([
-            'user_id' => '',
-            'status' => '',
+            'user_id' => 'required',
+            'status' => 'required',
         ]);
 
         try {

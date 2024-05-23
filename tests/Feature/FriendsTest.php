@@ -151,4 +151,31 @@ class FriendsTest extends TestCase {
             ]
         ]);
     }
+
+    public function test_friend_id_is_required_to_send_a_friend_request() {
+        $user = User::factory()->create();
+        $this->actingAs($user, 'api');
+
+        $response = $this->post('/api/friend-request', [
+            'friend_id' => '',
+        ])->assertStatus(422);
+
+        $this->assertArrayHasKey('friend_id', $response->json()['errors']['meta']);
+    }
+
+    public function test_user_id_and_status_is_required_for_friend_request_response() {
+        $user = User::factory()->create();
+        $this->actingAs($user, 'api');
+
+        $response = $this->actingAs($user, 'api')
+            ->post('/api/friend-request-response', [
+                'user_id' => '',
+                'status' => ''
+            ])->assertStatus(422);
+
+        $responseJson = $response->json();
+
+        $this->assertArrayHasKey('user_id', $responseJson['errors']['meta']);
+        $this->assertArrayHasKey('status', $responseJson['errors']['meta']);
+    }
 }
