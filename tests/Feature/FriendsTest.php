@@ -178,4 +178,74 @@ class FriendsTest extends TestCase {
         $this->assertArrayHasKey('user_id', $responseJson['errors']['meta']);
         $this->assertArrayHasKey('status', $responseJson['errors']['meta']);
     }
+
+    public function test_friendship_is_retrieved_when_fetching_the_profile() {
+        $user = User::factory()->create();
+        $this->actingAs($user, 'api');
+
+        $anotherUser = User::factory()->create();
+
+        $friendRequest = Friend::create([
+            'user_id' => $user->id,
+            'friend_id' => $anotherUser->id,
+            'confirmed_at' => now()->subday(),
+            'status' => 1
+        ]);
+
+        $this->get('/api/users/' . $anotherUser->id)->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'type' => 'users',
+                    'user_id' => $anotherUser->id,
+                    'attributes' => [
+                        'friendship' => [
+                            'data' => [
+                                'friend_request_id' => $friendRequest->id,
+                                'attributes' => [
+                                    'confirmed_at' => '1 day ago'
+                                ]
+                            ]
+                        ]
+                    ],
+                ],
+                'links' => [
+                    'self' => url('/users/' . $anotherUser->id)
+                ]
+            ]);
+    }
+
+    public function test_inverse_friendship_is_retrieved_when_fetching_the_profile() {
+        $user = User::factory()->create();
+        $this->actingAs($user, 'api');
+
+        $anotherUser = User::factory()->create();
+
+        $friendRequest = Friend::create([
+            'user_id' => $anotherUser->id,
+            'friend_id' => $user->id,
+            'confirmed_at' => now()->subday(),
+            'status' => 1
+        ]);
+
+        $this->get('/api/users/' . $anotherUser->id)->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'type' => 'users',
+                    'user_id' => $anotherUser->id,
+                    'attributes' => [
+                        'friendship' => [
+                            'data' => [
+                                'friend_request_id' => $friendRequest->id,
+                                'attributes' => [
+                                    'confirmed_at' => '1 day ago'
+                                ]
+                            ]
+                        ]
+                    ],
+                ],
+                'links' => [
+                    'self' => url('/users/' . $anotherUser->id)
+                ]
+            ]);
+    }
 }
