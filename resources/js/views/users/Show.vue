@@ -10,7 +10,11 @@
                     <img src="https://img.freepik.com/free-photo/young-bearded-man-with-striped-shirt_273609-5677.jpg?size=626&ext=jpg&ga=GA1.1.1224184972.1715040000&semt=sph"
                         alt="User Profile Image" class="w-32 h-32 object-cover rounded-full border-gray-200 shadow-lg">
                 </div>
-                <p class="ml-4 text-2xl text-gray-100">{{ user.data.attributes.name }}</p>
+                <p v-if="user" class="ml-4 text-2xl text-gray-100">{{ user.data.attributes.name }}</p>
+            </div>
+
+            <div class="absolute flex items-center bottom-0 right-0 mb-4 mr-12 z-20">
+                <button class="py-1 px-3 bg-gray-400 rounded-md">Add Friend</button>
             </div>
         </div>
 
@@ -24,6 +28,7 @@
 <script>
 import axios from 'axios';
 import Post from '../../components/Post';
+import { mapGetters } from 'vuex';
 
 export default {
     name: "Show",
@@ -34,21 +39,13 @@ export default {
 
     data: () => {
         return {
-            user: { data: { attributes: { name: '' } } },
             posts: {},
-            userLoading: true,
             postLoading: true,
         }
     },
 
     mounted() {
-        axios.get('/api/users/' + this.$route.params.userId).then(res => {
-            this.user = res.data;
-        }).catch(err => {
-            console.log('Unable to fetch the user from server.');
-        }).finally(() => {
-            this.userLoading = false;
-        });
+        this.$store.dispatch('fetchUser', this.$route.params.userId);
 
         axios.get('/api/users/' + this.$route.params.userId + '/posts').then(res => {
             this.posts = res.data;
@@ -57,6 +54,12 @@ export default {
         }).finally(() => {
             this.postLoading = false;
         });
+    },
+
+    computed: {
+        ...mapGetters({
+            user: 'user',
+        })
     },
 }
 </script>
