@@ -2615,8 +2615,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 var state = {
   user: null,
-  userStatus: null,
-  friendButtonText: null
+  userStatus: null
 };
 var getters = {
   user: function user(state) {
@@ -2625,8 +2624,12 @@ var getters = {
   friendship: function friendship(state) {
     return state.user.data.attributes.friendship;
   },
-  friendButtonText: function friendButtonText(state) {
-    return state.friendButtonText;
+  friendButtonText: function friendButtonText(state, getters, rootState) {
+    if (getters.friendship === null) {
+      return "Add Friend";
+    } else if (getters.friendship.data.attributes.confirmed_at === null) {
+      return "Pending Friend Request";
+    }
   }
 };
 var actions = {
@@ -2637,7 +2640,6 @@ var actions = {
     axios.get("/api/users/" + userId).then(function (res) {
       commit("setUser", res.data);
       commit("setUserStatus", "success");
-      dispatch("setFriendButton");
     })["catch"](function (err) {
       commit("setUserStatus", "error");
       console.log("Unable to fetch the user from server.");
@@ -2650,25 +2652,18 @@ var actions = {
     axios.post("/api/friend-request", {
       friend_id: friendId
     }).then(function (res) {
-      commit("setButtonText", "Pending Friend Request");
+      commit("setUserFriendship", res.data);
     })["catch"](function (err) {
-      commit("setButtonText", "Add Friend");
       console.log(err);
     });
-  },
-  setFriendButton: function setFriendButton(_ref3) {
-    var commit = _ref3.commit,
-      getters = _ref3.getters;
-    if (getters.friendship === null) {
-      commit("setButtonText", "Add Friend");
-    } else if (getters.friendship.data.attributes.confirmed_at === null) {
-      commit("setButtonText", "Pending Friend Request");
-    }
   }
 };
 var mutations = {
   setUser: function setUser(state, user) {
     state.user = user;
+  },
+  setUserFriendship: function setUserFriendship(state, friendship) {
+    state.user.data.attributes.friendship = friendship;
   },
   setUserStatus: function setUserStatus(state, userStatus) {
     state.userStatus = userStatus;
