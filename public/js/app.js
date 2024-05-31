@@ -2450,6 +2450,8 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
 //
 //
 //
+//
+//
 
 
 
@@ -2459,25 +2461,14 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
   components: {
     Post: _components_Post__WEBPACK_IMPORTED_MODULE_1__["default"]
   },
-  data: function data() {
-    return {
-      posts: {},
-      postLoading: true
-    };
-  },
   mounted: function mounted() {
-    var _this = this;
     this.$store.dispatch('fetchUser', this.$route.params.userId);
-    axios__WEBPACK_IMPORTED_MODULE_0___default().get('/api/users/' + this.$route.params.userId + '/posts').then(function (res) {
-      _this.posts = res.data;
-    })["catch"](function (err) {
-      console.log('Unable to fetch posts');
-    })["finally"](function () {
-      _this.postLoading = false;
-    });
+    this.$store.dispatch('fetchUserPosts', this.$route.params.userId);
   },
   computed: _objectSpread({}, (0,vuex__WEBPACK_IMPORTED_MODULE_2__.mapGetters)({
     user: 'user',
+    posts: 'posts',
+    status: 'status',
     friendButtonText: 'friendButtonText'
   }))
 });
@@ -2635,11 +2626,22 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 var state = {
   user: null,
-  userStatus: null
+  userStatus: null,
+  posts: null,
+  postStatus: null
 };
 var getters = {
   user: function user(state) {
     return state.user;
+  },
+  posts: function posts(state) {
+    return state.posts;
+  },
+  status: function status(state) {
+    return {
+      user: state.userStatus,
+      posts: state.postStatus
+    };
   },
   friendship: function friendship(state) {
     var _state$user;
@@ -2670,9 +2672,21 @@ var actions = {
       console.log("Unable to fetch the user from server.");
     });
   },
-  sendFriendRequest: function sendFriendRequest(_ref2, friendId) {
+  fetchUserPosts: function fetchUserPosts(_ref2, userId) {
     var commit = _ref2.commit,
       state = _ref2.state;
+    commit("setPostsStatus", "loading");
+    axios.get("/api/users/" + userId + "/posts").then(function (res) {
+      commit("setPosts", res.data);
+      commit("setPostsStatus", "success");
+    })["catch"](function (err) {
+      commit("setPostsStatus", "error");
+      console.log("Unable to fetch posts");
+    });
+  },
+  sendFriendRequest: function sendFriendRequest(_ref3, friendId) {
+    var commit = _ref3.commit,
+      state = _ref3.state;
     axios.post("/api/friend-request", {
       friend_id: friendId
     }).then(function (res) {
@@ -2681,9 +2695,9 @@ var actions = {
       console.log(err);
     });
   },
-  acceptFriendRequest: function acceptFriendRequest(_ref3, userId) {
-    var commit = _ref3.commit,
-      state = _ref3.state;
+  acceptFriendRequest: function acceptFriendRequest(_ref4, userId) {
+    var commit = _ref4.commit,
+      state = _ref4.state;
     axios.post("/api/friend-request-response", {
       user_id: userId,
       status: 1
@@ -2693,9 +2707,9 @@ var actions = {
       console.log(err);
     });
   },
-  ignoreFriendRequest: function ignoreFriendRequest(_ref4, userId) {
-    var commit = _ref4.commit,
-      state = _ref4.state;
+  ignoreFriendRequest: function ignoreFriendRequest(_ref5, userId) {
+    var commit = _ref5.commit,
+      state = _ref5.state;
     axios["delete"]("/api/friend-request-response/delete", {
       data: {
         user_id: userId
@@ -2711,11 +2725,17 @@ var mutations = {
   setUser: function setUser(state, user) {
     state.user = user;
   },
+  setPosts: function setPosts(state, posts) {
+    state.posts = posts;
+  },
   setUserFriendship: function setUserFriendship(state, friendship) {
     state.user.data.attributes.friendship = friendship;
   },
   setUserStatus: function setUserStatus(state, userStatus) {
     state.userStatus = userStatus;
+  },
+  setPostsStatus: function setPostsStatus(state, postsStatus) {
+    state.postsStatus = postsStatus;
   }
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
@@ -21343,112 +21363,119 @@ var render = function () {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    { staticClass: "flex flex-col items-center" },
-    [
-      _c("div", { staticClass: "relative mb-8" }, [
-        _vm._m(0),
-        _vm._v(" "),
-        _c(
-          "div",
-          {
-            staticClass:
-              "absolute flex items-center bottom-0 left-0 -mb-8 ml-12 z-20",
-          },
-          [
-            _vm._m(1),
+  return _vm.status.user == "success" && _vm.user
+    ? _c(
+        "div",
+        { staticClass: "flex flex-col items-center" },
+        [
+          _c("div", { staticClass: "relative mb-8" }, [
+            _vm._m(0),
             _vm._v(" "),
-            _vm.user
-              ? _c("p", { staticClass: "ml-4 text-2xl text-gray-100" }, [
-                  _vm._v(_vm._s(_vm.user.data.attributes.name)),
-                ])
-              : _vm._e(),
-          ]
-        ),
-        _vm._v(" "),
-        _c(
-          "div",
-          {
-            staticClass:
-              "absolute flex items-center bottom-0 right-0 mb-4 mr-12 z-20",
-          },
-          [
-            _vm.friendButtonText && _vm.friendButtonText != "Accept"
-              ? _c(
-                  "button",
-                  {
-                    staticClass: "py-1 px-3 bg-gray-400 rounded-md",
-                    on: {
-                      click: function ($event) {
-                        return _vm.$store.dispatch(
-                          "sendFriendRequest",
-                          _vm.$route.params.userId
-                        )
-                      },
-                    },
-                  },
-                  [
-                    _vm._v(
-                      "\n                " +
-                        _vm._s(_vm.friendButtonText) +
-                        "\n            "
-                    ),
-                  ]
-                )
-              : _vm._e(),
+            _c(
+              "div",
+              {
+                staticClass:
+                  "absolute flex items-center bottom-0 left-0 -mb-8 ml-12 z-20",
+              },
+              [
+                _vm._m(1),
+                _vm._v(" "),
+                _vm.user
+                  ? _c("p", { staticClass: "ml-4 text-2xl text-gray-100" }, [
+                      _vm._v(_vm._s(_vm.user.data.attributes.name)),
+                    ])
+                  : _vm._e(),
+              ]
+            ),
             _vm._v(" "),
-            _vm.friendButtonText && _vm.friendButtonText == "Accept"
-              ? _c(
-                  "button",
-                  {
-                    staticClass: "mr-2 py-1 px-3 bg-blue-500 rounded-md",
-                    on: {
-                      click: function ($event) {
-                        return _vm.$store.dispatch(
-                          "acceptFriendRequest",
-                          _vm.$route.params.userId
-                        )
+            _c(
+              "div",
+              {
+                staticClass:
+                  "absolute flex items-center bottom-0 right-0 mb-4 mr-12 z-20",
+              },
+              [
+                _vm.friendButtonText && _vm.friendButtonText != "Accept"
+                  ? _c(
+                      "button",
+                      {
+                        staticClass: "py-1 px-3 bg-gray-400 rounded-md",
+                        on: {
+                          click: function ($event) {
+                            return _vm.$store.dispatch(
+                              "sendFriendRequest",
+                              _vm.$route.params.userId
+                            )
+                          },
+                        },
                       },
-                    },
-                  },
-                  [_vm._v("\n                Accept\n            ")]
-                )
-              : _vm._e(),
-            _vm._v(" "),
-            _vm.friendButtonText && _vm.friendButtonText == "Accept"
-              ? _c(
-                  "button",
-                  {
-                    staticClass: "py-1 px-3 bg-gray-400 rounded-md",
-                    on: {
-                      click: function ($event) {
-                        return _vm.$store.dispatch(
-                          "ignoreFriendRequest",
-                          _vm.$route.params.userId
-                        )
+                      [
+                        _vm._v(
+                          "\n                " +
+                            _vm._s(_vm.friendButtonText) +
+                            "\n            "
+                        ),
+                      ]
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
+                _vm.friendButtonText && _vm.friendButtonText == "Accept"
+                  ? _c(
+                      "button",
+                      {
+                        staticClass: "mr-2 py-1 px-3 bg-blue-500 rounded-md",
+                        on: {
+                          click: function ($event) {
+                            return _vm.$store.dispatch(
+                              "acceptFriendRequest",
+                              _vm.$route.params.userId
+                            )
+                          },
+                        },
                       },
-                    },
-                  },
-                  [_vm._v("\n                Ignore\n            ")]
-                )
-              : _vm._e(),
-          ]
-        ),
-      ]),
-      _vm._v(" "),
-      _vm.postLoading
-        ? _c("p", [_vm._v("Loading posts...")])
-        : _vm._l(_vm.posts.data, function (post) {
-            return _c("Post", { key: post.data.post_id, attrs: { post: post } })
-          }),
-      _vm._v(" "),
-      !_vm.postLoading && _vm.posts.data.length == 0
-        ? _c("p", [_vm._v("You don't have posts. Post something! :)")])
-        : _vm._e(),
-    ],
-    2
-  )
+                      [_vm._v("\n                Accept\n            ")]
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
+                _vm.friendButtonText && _vm.friendButtonText == "Accept"
+                  ? _c(
+                      "button",
+                      {
+                        staticClass: "py-1 px-3 bg-gray-400 rounded-md",
+                        on: {
+                          click: function ($event) {
+                            return _vm.$store.dispatch(
+                              "ignoreFriendRequest",
+                              _vm.$route.params.userId
+                            )
+                          },
+                        },
+                      },
+                      [_vm._v("\n                Ignore\n            ")]
+                    )
+                  : _vm._e(),
+              ]
+            ),
+          ]),
+          _vm._v(" "),
+          !_vm.posts || _vm.status.posts == "loading"
+            ? _c("div", [_vm._v("Loading posts...")])
+            : _vm.posts && _vm.posts.length < 1
+            ? _c("div", [
+                _vm._v(
+                  "\n        You don't have posts. Post something! :)\n    "
+                ),
+              ])
+            : _vm._l(_vm.posts.data, function (post) {
+                return _c("Post", {
+                  key: post.data.post_id,
+                  attrs: { post: post },
+                })
+              }),
+        ],
+        2
+      )
+    : _vm._e()
 }
 var staticRenderFns = [
   function () {
