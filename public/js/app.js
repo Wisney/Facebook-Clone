@@ -2649,6 +2649,9 @@ var getters = {
   },
   friendButtonText: function friendButtonText(state, getters, rootState) {
     var _getters$friendship, _getters$friendship2, _getters$friendship3;
+    if (rootState.User.user.data.user_id == state.user.data.user_id) {
+      return "";
+    }
     if (getters.friendship === null) {
       return "Add Friend";
     } else if (((_getters$friendship = getters.friendship) === null || _getters$friendship === void 0 ? void 0 : _getters$friendship.data.attributes.confirmed_at) === null && ((_getters$friendship2 = getters.friendship) === null || _getters$friendship2 === void 0 ? void 0 : _getters$friendship2.data.attributes.friend_id) !== rootState.User.user.data.user_id) {
@@ -2686,7 +2689,8 @@ var actions = {
   },
   sendFriendRequest: function sendFriendRequest(_ref3, friendId) {
     var commit = _ref3.commit,
-      state = _ref3.state;
+      getters = _ref3.getters;
+    if (getters.friendButtonText != "Add Friend") return;
     axios.post("/api/friend-request", {
       friend_id: friendId
     }).then(function (res) {

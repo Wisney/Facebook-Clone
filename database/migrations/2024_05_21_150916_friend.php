@@ -18,6 +18,8 @@ class Friend extends Migration {
             $table->tinyInteger('status')->default(0);
             $table->timestamp('confirmed_at')->nullable();
             $table->timestamps();
+
+            $table->unique(['user_id', 'friend_id']);
         });
     }
 
