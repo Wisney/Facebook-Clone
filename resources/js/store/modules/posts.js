@@ -1,6 +1,7 @@
 const state = {
     newsPosts: { data: null },
     newsPostsStatus: null,
+    postMessage: "",
 };
 const getters = {
     newsPosts: (state) => {
@@ -8,6 +9,9 @@ const getters = {
     },
     newsPostsStatus: (state) => {
         return state.newsPostsStatus;
+    },
+    postMessage: (state) => {
+        return state.postMessage;
     },
 };
 const actions = {
@@ -25,6 +29,17 @@ const actions = {
                 console.log("Unable to fetch posts");
             });
     },
+    postMessage({ commit, state }) {
+        axios
+            .post("/api/posts", { body: state.postMessage })
+            .then((res) => {
+                commit("pushPost", res.data);
+                commit("updateMessage", "");
+            })
+            .catch((err) => {
+                console.log("Unable to fetch posts");
+            });
+    },
 };
 const mutations = {
     setPosts(state, posts) {
@@ -32,6 +47,12 @@ const mutations = {
     },
     setNewsPostsStatus(state, status) {
         state.newsPostsStatus = status;
+    },
+    updateMessage(state, message) {
+        state.postMessage = message;
+    },
+    pushPost(state, post) {
+        state.newsPosts.data.unshift(post);
     },
 };
 

@@ -12,18 +12,13 @@ class PostToTimelineTest extends TestCase {
     use RefreshDatabase;
 
     public function test_user_can_post_a_text_post() {
-        $this->withoutExceptionHandling();
+
         $user = User::factory()->create();
         $this->actingAs($user, 'api');
 
         $test_body = 'Testing Body';
         $response = $this->post('/api/posts', [
-            'data' => [
-                'type' => 'posts',
-                'attributes' => [
-                    'body' => $test_body,
-                ]
-            ]
+            'body' => $test_body,
         ]);
 
         $post = Post::first();
