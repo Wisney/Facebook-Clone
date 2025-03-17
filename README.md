@@ -1,4 +1,4 @@
-# Facebook-Clone
+# Facebook Clone
 
 Using:
 - PHP
